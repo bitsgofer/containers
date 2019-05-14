@@ -32,6 +32,9 @@ benchmark.full:
 	@benchstat -sort name $(FILE)
 .PHONY: benchmark.full
 
+test.all: test.fuzz benchmark.full
+.PHONY: test.all
+
 vendor:
 	GO111MODULE=on go mod vendor
 .PHONY: vendor
