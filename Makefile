@@ -8,7 +8,6 @@ test.fuzz:
 	GO111MODULE=on go test -mod=vendor -cover -tags fuzz ./$(PKG)
 .PHONY: test.fuzz
 
-
 test.v: PKG=...
 test.v:
 	GO111MODULE=on go test -mod=vendor -cover -v ./$(PKG)
@@ -32,7 +31,6 @@ benchmark.full:
 		./$(PKG) > $(FILE)
 	@benchstat -sort name $(FILE)
 .PHONY: benchmark.full
-
 
 vendor:
 	GO111MODULE=on go mod vendor
