@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/bitsgofer/containers"
 )
 
 var stackCmpOption = cmp.AllowUnexported(stack{})
@@ -12,22 +14,22 @@ var stackCmpOption = cmp.AllowUnexported(stack{})
 func TestPush(t *testing.T) {
 	var testCases = map[string]struct {
 		s         *stack
-		item      Element
+		item      containers.Value
 		nextStack *stack
 	}{
 		"zeroValue": {
 			s:         newZeroValueStack(),
-			item:      Element{Value: 1},
+			item:      containers.Value(1),
 			nextStack: newStackWithValues(1),
 		},
 		"empty": {
 			s:         newStackWithValues(),
-			item:      Element{Value: 1},
+			item:      containers.Value(1),
 			nextStack: newStackWithValues(1),
 		},
 		"filled": {
 			s:         newStackWithValues(1, 2, 3),
-			item:      Element{Value: 4},
+			item:      containers.Value(4),
 			nextStack: newStackWithValues(1, 2, 3, 4),
 		},
 	}
@@ -109,7 +111,7 @@ func TestTop(t *testing.T) {
 	var testCases = map[string]struct {
 		s     *stack
 		isErr bool
-		val   Element
+		val   containers.Value
 	}{
 		"zeroValue": {
 			s:     newZeroValueStack(),
@@ -121,7 +123,7 @@ func TestTop(t *testing.T) {
 		},
 		"filled": {
 			s:   newStackWithValues(1, 2, 3),
-			val: Element{Value: 3},
+			val: containers.Value(3),
 		},
 	}
 
@@ -146,7 +148,7 @@ func TestPop(t *testing.T) {
 	var testCases = map[string]struct {
 		s             *stack
 		isErr         bool
-		val           Element
+		val           containers.Value
 		emptyAfterPop bool
 		nextStack     *stack
 	}{
@@ -162,12 +164,12 @@ func TestPop(t *testing.T) {
 		},
 		"oneElement": {
 			s:         newStackWithValues(1),
-			val:       Element{1},
+			val:       containers.Value(1),
 			nextStack: newStackWithValues(),
 		},
 		"manyElements": {
 			s:         newStackWithValues(1, 2, 3),
-			val:       Element{Value: 3},
+			val:       containers.Value(3),
 			nextStack: newStackWithValues(1, 2),
 		},
 	}
@@ -196,33 +198,31 @@ func TestPop(t *testing.T) {
 
 func newStackWithValues(vals ...interface{}) *stack {
 	s := &stack{
-		items: make([]Element, 0, len(vals)),
+		items: make([]containers.Value, 0, len(vals)),
 	}
 	for _, v := range vals {
-		s.Push(Element{Value: v})
+		s.Push(containers.Value(v))
 	}
 
 	return s
 }
 
 var benchmarkTypes = map[string]struct {
-	newElement func() Element
+	newValue func() containers.Value
 }{
 	"int": {
-		newElement: func() Element {
-			return Element{Value: 2}
+		newValue: func() containers.Value {
+			return containers.Value(2)
 		},
 	},
 	"string": {
-		newElement: func() Element {
-			return Element{Value: "this is a string"}
+		newValue: func() containers.Value {
+			return containers.Value("this is a string")
 		},
 	},
 	"largeStruct": {
-		newElement: func() Element {
-			return Element{
-				Value: http.Client{},
-			}
+		newValue: func() containers.Value {
+			return containers.Value(http.Client{})
 		},
 	},
 }
@@ -232,7 +232,7 @@ func BenchmarkPush(b *testing.B) {
 		b.Run(name, func(b *testing.B) {
 			s := newZeroValueStack()
 			for i := 0; i < b.N; i++ {
-				s.Push(bm.newElement())
+				s.Push(bm.newValue())
 			}
 		})
 	}
@@ -243,7 +243,7 @@ func BenchmarkTop(b *testing.B) {
 		b.Run(name, func(b *testing.B) {
 			s := newZeroValueStack()
 			for i := 0; i < 10; i++ {
-				s.Push(bm.newElement())
+				s.Push(bm.newValue())
 			}
 
 			for i := 0; i < b.N; i++ {
@@ -258,7 +258,7 @@ func BenchmarkPop(b *testing.B) {
 		b.Run(name, func(b *testing.B) {
 			s := newZeroValueStack()
 			for i := 0; i < 10; i++ {
-				s.Push(bm.newElement())
+				s.Push(bm.newValue())
 			}
 
 			for i := 0; i < b.N; i++ {

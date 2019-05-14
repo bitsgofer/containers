@@ -1,24 +1,23 @@
 package stack
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
 
-// Element wraps a value in the stack.
-type Element struct {
-	Value interface{}
-}
+	"github.com/bitsgofer/containers"
+)
 
 // Stackable provides LIFO APIs.
 type Stackable interface {
-	Push(item Element)
-	Top() (Element, error)
-	Pop() (Element, error)
+	Push(item containers.Value)
+	Top() (containers.Value, error)
+	Pop() (containers.Value, error)
 	Size() int
 	Clear()
 }
 
 // stack is a concrete implementation of Stackable on a slice.
 type stack struct {
-	items []Element
+	items []containers.Value
 }
 
 func newZeroValueStack() *stack {
@@ -30,8 +29,8 @@ func New() *stack {
 	return newZeroValueStack()
 }
 
-// Push adds a new Element on the stack's top.
-func (s *stack) Push(item Element) {
+// Push adds a new containers.Value on the stack's top.
+func (s *stack) Push(item containers.Value) {
 	s.items = append(s.items, item)
 }
 
@@ -47,21 +46,21 @@ func (s *stack) Clear() {
 
 const stackIsEmpty = "stack is empty"
 
-// Top returns the Element on top of the stack.
-func (s *stack) Top() (Element, error) {
+// Top returns the containers.Value on top of the stack.
+func (s *stack) Top() (containers.Value, error) {
 	n := len(s.items)
 	if n == 0 {
-		return Element{}, errors.New(stackIsEmpty)
+		return nil, errors.New(stackIsEmpty)
 	}
 
 	return s.items[n-1], nil
 }
 
-// Pop removes the Element on top of the stack and returns it.
-func (s *stack) Pop() (Element, error) {
+// Pop removes the containers.Value on top of the stack and returns it.
+func (s *stack) Pop() (containers.Value, error) {
 	top, err := s.Top()
 	if err != nil {
-		return Element{}, err
+		return nil, err
 	}
 
 	s.items = s.items[:len(s.items)-1]

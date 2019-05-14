@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/bitsgofer/containers"
 )
 
 // TestFuzzOps performs N random operations to see if the stack panic.
@@ -16,7 +18,7 @@ func TestFuzzOps(t *testing.T) {
 
 	s := newZeroValueStack()
 	push := func() {
-		s.Push(Element{Value: rng.Int()})
+		s.Push(containers.Value(rng.Int()))
 	}
 	pop := func() { s.Pop() }
 	top := func() { s.Top() }
