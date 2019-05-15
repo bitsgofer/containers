@@ -9,8 +9,9 @@ test.fuzz:
 .PHONY: test.fuzz
 
 test.v: PKG=...
+test.v: REGEX=.*
 test.v:
-	GO111MODULE=on go test -mod=vendor -cover -v ./$(PKG)
+	GO111MODULE=on go test -mod=vendor -cover -v -run "$(REGEX)" ./$(PKG)
 .PHONY: test.v
 
 benchmark: PKG=...
