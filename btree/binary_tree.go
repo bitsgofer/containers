@@ -14,15 +14,37 @@ type TreeNode struct {
 	Right  *TreeNode
 }
 
-// walkPreorder traverse a tree inorder, executing fn() on each node.
-func walkPreorder(node *TreeNode, fn func(*TreeNode)) {
+// walkPreOrder executes fn() on nodes using pre-order.
+func walkPreOrder(node *TreeNode, fn func(*TreeNode)) {
 	if node == nil {
 		return
 	}
 
 	fn(node)
-	walkPreorder(node.Left, fn)
-	walkPreorder(node.Right, fn)
+	walkPreOrder(node.Left, fn)
+	walkPreOrder(node.Right, fn)
+}
+
+// walkPostOrder executes fn() on nodes using post-order.
+func walkPostOrder(node *TreeNode, fn func(*TreeNode)) {
+	if node == nil {
+		return
+	}
+
+	walkPostOrder(node.Left, fn)
+	walkPostOrder(node.Right, fn)
+	fn(node)
+}
+
+// walkInOrder executes fn() on nodes using in-order.
+func walkInOrder(node *TreeNode, fn func(*TreeNode)) {
+	if node == nil {
+		return
+	}
+
+	walkInOrder(node.Left, fn)
+	fn(node)
+	walkInOrder(node.Right, fn)
 }
 
 // NewFromLeetCodeOrder construct a btree from a list of values (LeetCode test cases).
@@ -35,13 +57,13 @@ func NewFromLeetCodeOrder(vals ...containers.Value) (*TreeNode, error) {
 	root := TreeNode{
 		Value: containers.Value(vals[0]),
 	}
-	root.Left = nodeFromBFS(vals, 1, &root)
-	root.Right = nodeFromBFS(vals, 2, &root)
+	root.Left = nodeFromLeetCodeOrder(vals, 1, &root)
+	root.Right = nodeFromLeetCodeOrder(vals, 2, &root)
 
 	return &root, nil
 }
 
-func nodeFromBFS(vals []containers.Value, index int, parent *TreeNode) *TreeNode {
+func nodeFromLeetCodeOrder(vals []containers.Value, index int, parent *TreeNode) *TreeNode {
 	if index >= len(vals) { // no such element
 		return nil
 	}
@@ -56,8 +78,31 @@ func nodeFromBFS(vals []containers.Value, index int, parent *TreeNode) *TreeNode
 		Value:  containers.Value(vals[index]),
 		Parent: parent,
 	}
-	node.Left = nodeFromBFS(vals, index*2+1, &node)
-	node.Right = nodeFromBFS(vals, index*2+2, &node)
+	node.Left = nodeFromLeetCodeOrder(vals, index*2+1, &node)
+	node.Right = nodeFromLeetCodeOrder(vals, index*2+2, &node)
 
 	return &node
+}
+
+func extracValuesPreOrder(root *TreeNode) []containers.Value {
+	return extractValues(root, walkPreOrder)
+}
+
+func extracValuesPostOrder(root *TreeNode) []containers.Value {
+	return extractValues(root, walkPostOrder)
+}
+
+func extracValuesInOrder(root *TreeNode) []containers.Value {
+	return extractValues(root, walkInOrder)
+}
+
+func extractValues(root *TreeNode, traversalFn func(*TreeNode, func(*TreeNode))) []containers.Value {
+	var vals []containers.Value
+
+	appendFn := func(node *TreeNode) {
+		vals = append(vals, node.Value)
+	}
+	traversalFn(root, appendFn)
+
+	return vals
 }
